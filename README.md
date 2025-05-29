@@ -112,12 +112,6 @@ streamlit run streamlit_app.py
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
-
 ## 🧠 Acknowledgments
 
 * [LangGraph](https://github.com/langchain-ai/langgraph)
