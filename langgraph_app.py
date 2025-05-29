@@ -26,7 +26,6 @@ class State(TypedDict):
     step_index: int
     continue_chat: bool  
 
-api_key = "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"
 client = Groq(api_key=api_key)
 
 # Build Vector Store
