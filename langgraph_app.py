@@ -1,5 +1,7 @@
 # langgraph_app.py
 from langchain.vectorstores import FAISS
+from langchain.vectorstores import Pinecone
+from langchain.schema import Document
 from langchain.document_loaders import TextLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import HuggingFaceEmbeddings
@@ -9,12 +11,24 @@ import os
 from typing import TypedDict, List, Tuple
 
 
+
 from langgraph.graph import END, START, MessagesState, StateGraph
 
 from dotenv import load_dotenv
 
 load_dotenv()
 api_key = os.getenv("GROQ_API_KEY")
+pinecone_api_key = os.getenv("PINECONE_API_KEY")
+pinecone_env = os.getenv("PINECONE_ENV") 
+pinecone_host = os.getenv("PINECONE_HOST")
+pinecone_index_name = "recipe-index"
+
+
+from pinecone import Pinecone, ServerlessSpec
+from langchain_pinecone import PineconeVectorStore
+import pandas as pd
+
+
 
 
 class State(TypedDict):
@@ -28,6 +42,59 @@ class State(TypedDict):
 
 client = Groq(api_key=api_key)
 
+def build_vectorstore_from_csv(csv_path="recipes.csv"):
+    # Step 1: Initialize Pinecone
+    pc = Pinecone(api_key=pinecone_api_key, environment=pinecone_env)
+
+
+    # Step 2: Create or connect to the index
+
+    if pinecone_index_name not in pc.list_indexes().names():
+        pc.create_index(
+            name= pinecone_index_name,
+            dimension=1024, 
+            metric='cosine',
+            spec=ServerlessSpec(
+                cloud='aws',
+                region=pinecone_env
+            )
+        )
+
+    '''if pinecone_index_name not in pinecone.list_indexes():
+        pinecone.create_index(pinecone_index_name, dimension=384)  # 384 for MiniLM-L6-v2
+    index = pinecone.Index(pinecone_index_name)'''
+
+    index = pc.Index(host = pinecone_host)
+
+    # Step 3: Load top 70 entries, Use only once to upsert entries into the pinecone vectorstore
+    '''df = pd.read_csv(csv_path, nrows=70)
+    
+    # Step 4: Create documents
+    docs = [
+        Document(
+            page_content=f"Title: {row['title']}\nIngredients: {row['ingredients']}\nDirections: {row['directions']}"
+        )
+        for _, row in df.iterrows()
+    ]'''
+
+    # Step 5: Embed texts
+    embeddings = HuggingFaceEmbeddings(model_name="intfloat/e5-large")  #e5-large --> 1024 dimensions, cosine friendly
+    '''texts = [doc.page_content for doc in docs]
+    vectors = embeddings.embed_documents(texts)
+
+    # Step 6: Upsert into Pinecone
+    pinecone_vectors = [
+        (f"recipe-{i}", vec, {"text": texts[i]})
+        for i, vec in enumerate(vectors)
+    ]
+    index.upsert(vectors=pinecone_vectors)
+    print("✅ Upserted top 70 recipes to Pinecone")'''
+
+    # Step 7: Return LangChain retriever
+    vector_store = PineconeVectorStore(index=index, embedding=embeddings)
+    #vectorstore = Pinecone(index, embeddings.embed_query, "text")
+    return vector_store
+
 # Build Vector Store
 def build_vectorstore():
     loader = TextLoader("recipes.txt")
@@ -38,7 +105,8 @@ def build_vectorstore():
     vectorstore = FAISS.from_documents(split_docs, embeddings)
     return vectorstore
 
-vectorstore = build_vectorstore()
+#vectorstore = build_vectorstore()     --- Uses FAISS with a small corpus of custom recipes in the recipes.txt
+vectorstore = build_vectorstore_from_csv("recipes.csv")
 retriever = vectorstore.as_retriever()
 
 def format_chat_history(history):
