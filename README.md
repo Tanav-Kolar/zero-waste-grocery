@@ -98,7 +98,9 @@ streamlit run streamlit_app.py
 ## 🧪 Example Prompts
 
 > "I have tomatoes, onions, garlic, and stale bread. What can I make?"
+-
 > "Can you make it gluten-free?"
+-
 > "Give me a zero-waste variation without using an oven."
 
 ---
