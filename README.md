@@ -1,4 +1,4 @@
-# 🥣 Little Leftovers: Zero-Waste Grocery Helper
+# 🥕 Little Leftovers: Zero-Waste Grocery Helper
 
 **A conversational AI assistant that helps you generate creative, zero-waste recipes using the ingredients you already have.**
 
