@@ -4,7 +4,7 @@
 
 Built using [LangGraph](https://github.com/langchain-ai/langgraph), [Streamlit](https://streamlit.io/), and [FAISS](https://github.com/facebookresearch/faiss) or [Pinecone](https://www.pinecone.io/) for a fast, scalable user experience.
 
-🌐 **Live App**: [Try it on Streamlit Cloud](https://<your-deployed-app-url>.streamlit.app)
+🌐 **Live App**: [Try it on Streamlit Cloud](https://zero-waste-grocery-deploy-prototype-v27dqjgxehtdk4eatte2ng.streamlit.app/)
 
 ---
 
