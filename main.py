@@ -2,6 +2,8 @@
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from langgraph_app import app_flow  # import compiled LangGraph app
+import os
+import groq
 
 app = FastAPI()
 
